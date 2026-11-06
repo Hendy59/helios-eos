@@ -7,14 +7,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Locale;
 
-/** App-wide language choice; Polish source strings remain the fallback. */
+/** App-wide language choice; English is the default once init() ran, Polish source strings remain the fallback. */
 final class I18n {
     private static volatile Translations catalogue=new Translations(Collections.emptyMap(),Collections.emptyMap());
-    private static volatile String choice="pl";
+    private static volatile String choice="pl"; // JVM tests never call init(); the device default below is English
     private I18n(){}
 
     static void init(Context context) {
-        choice=context.getSharedPreferences("helios",Context.MODE_PRIVATE).getString("language","auto");
+        choice=context.getSharedPreferences("helios",Context.MODE_PRIVATE).getString("language","en");
         try {
             catalogue=Translations.fromJson(read(context,"i18n/en.json"),read(context,"i18n/de.json"));
         } catch(Exception error) {
@@ -38,5 +38,11 @@ final class I18n {
             throw new IllegalArgumentException("Unsupported language");
         context.getSharedPreferences("helios",Context.MODE_PRIVATE).edit().putString("language",language).apply();
         choice=language;
+    }
+
+    /** Language reported by Home Assistant in the connection event; unknown codes become English (the default). */
+    static void applyHaLanguage(Context context,String code) {
+        String mapped=Translations.fromHaLanguage(code);
+        if(mapped!=null&&!mapped.equals(choice))choose(context,mapped);
     }
 }

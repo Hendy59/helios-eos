@@ -19,6 +19,12 @@ public class ConnectionMergeTest {
         assertNull(ConnectionMerge.apply(base(),new JSONObject().put("pipeline","").put("music_assistant",ma("ftp://x"))));
         assertNull(ConnectionMerge.apply(base(),new JSONObject().put("music_assistant",new JSONObject().put("url","http://ma:8095").put("token","m").put("sendspin_url","http://ma:8927"))));
     }
+    @Test public void languageMergesLikePipeline() throws Exception {
+        JSONObject m=ConnectionMerge.apply(base(),new JSONObject().put("pipeline","p1").put("language","de"));
+        assertEquals("de",m.getString("language"));
+        assertNull("an unchanged language merges to nothing",ConnectionMerge.apply(m,new JSONObject().put("pipeline","p1").put("language","de")));
+        assertNull("an empty language is ignored",ConnectionMerge.apply(base(),new JSONObject().put("pipeline","p1").put("language","")));
+    }
     @Test public void pipelineAndDiagnosticsMerge() throws Exception {
         JSONObject m=ConnectionMerge.apply(base(),new JSONObject().put("pipeline","p2").put("diagnostics_url","http://pc:8757/x/events"));
         assertEquals("p2",m.getString("pipeline"));assertEquals("http://pc:8757/x/events",m.getString("diagnostics_url"));assertTrue(ConnectionMerge.haRestart(base(),m));

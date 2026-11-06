@@ -21,9 +21,11 @@ public class ReleaseSourceTest {
     public void theUpdaterCanPointAtASecondRepository() throws Exception {
         assertEquals("https://api.github.com/repos/SychPL/smartclock2tool/releases/latest",
                 ReleaseInfo.TOOLS.apiUrl());
-        assertEquals("https://api.github.com/repos/SychPL/helios/releases/latest", ReleaseInfo.HELIOS.apiUrl());
+        assertEquals("https://api.github.com/repos/Hendy59/helios-eos/releases/latest", ReleaseInfo.HELIOS.apiUrl());
         assertEquals("smartclock2tool-2.19.0.apk", ReleaseInfo.TOOLS.assetName("2.19.0"));
+        assertEquals("helios-eos-0.21.0.apk", ReleaseInfo.HELIOS.assetName("0.21.0"));
         assertEquals("pl.mateusz.clockadbprobe", ReleaseInfo.TOOLS.expectedPackage);
+        assertEquals("pl.mateusz.helios", ReleaseInfo.HELIOS.expectedPackage);
     }
 
     @Test
@@ -43,8 +45,9 @@ public class ReleaseSourceTest {
     }
 
     @Test
-    public void theDefaultSourceIsStillHelios() throws Exception {
-        assertNotNull(ReleaseInfo.parse(release("v0.9.1", "helios-0.9.1.apk")));
+    public void theDefaultSourceIsStillEos() throws Exception {
+        assertNotNull(ReleaseInfo.parse(release("v0.9.1", "helios-eos-0.9.1.apk")));
+        assertNull(ReleaseInfo.parse(release("v0.9.1", "helios-0.9.1.apk")));
         assertNull(ReleaseInfo.parse(release("v0.9.1", "smartclock2tool-0.9.1.apk")));
     }
 }

@@ -14,19 +14,19 @@ public class ReleaseInfoTest {
         try{Version.compare("0.9.x","0.9.0");fail();}catch(IllegalArgumentException expected){}
     }
     @Test public void onlyAWellFormedFinalReleaseWithOneApkIsAccepted() throws Exception {
-        ReleaseInfo info=ReleaseInfo.parse(release("v0.9.1","helios-0.9.1.apk","https://github.com/SychPL/helios/releases/download/v0.9.1/helios-0.9.1.apk",6_000_000));
+        ReleaseInfo info=ReleaseInfo.parse(release("v0.9.1","helios-eos-0.9.1.apk","https://github.com/Hendy59/helios-eos/releases/download/v0.9.1/helios-eos-0.9.1.apk",6_000_000));
         assertEquals("0.9.1",info.version);assertEquals(6_000_000,info.size);assertTrue(info.url.startsWith("https://github.com/"));
-        assertNull(ReleaseInfo.parse(release("0.9.1","helios-0.9.1.apk","https://github.com/x",1)));
-        assertNull("exactly three components",ReleaseInfo.parse(release("v1","helios-1.apk","https://github.com/x",1)));assertNull(ReleaseInfo.parse(release("v0.9.1.2","helios-0.9.1.2.apk","https://github.com/x",1)));
-        assertNull("initial download only from github.com or objects.githubusercontent.com",ReleaseInfo.parse(release("v0.9.1","helios-0.9.1.apk","https://raw.githubusercontent.com/x",1)));
-        assertNotNull(ReleaseInfo.parse(release("v0.9.1","helios-0.9.1.apk","https://objects.githubusercontent.com/x",1)));
-        assertNull(ReleaseInfo.parse(release("v0.9.1","helios-0.9.2.apk","https://github.com/x",1)));
-        assertNull(ReleaseInfo.parse(release("v0.9.1","helios-0.9.1.apk","http://github.com/x",1)));
-        assertNull(ReleaseInfo.parse(release("v0.9.1","helios-0.9.1.apk","https://evil.com/x",1)));
-        assertNull(ReleaseInfo.parse(release("v0.9.1","helios-0.9.1.apk","https://github.com/x",ReleaseInfo.MAX_BYTES+1)));
-        assertNull(ReleaseInfo.parse(release("v0.9.1","helios-0.9.1.apk","https://github.com/x",1).put("prerelease",true)));
-        assertNull(ReleaseInfo.parse(release("v0.9.1","helios-0.9.1.apk","https://github.com/x",1).put("draft",true)));
-        JSONObject two=release("v0.9.1","helios-0.9.1.apk","https://github.com/x",1);two.getJSONArray("assets").put(new JSONObject().put("name","helios-0.9.1.apk").put("browser_download_url","https://github.com/y").put("size",1));
+        assertNull(ReleaseInfo.parse(release("0.9.1","helios-eos-0.9.1.apk","https://github.com/x",1)));
+        assertNull("exactly three components",ReleaseInfo.parse(release("v1","helios-eos-1.apk","https://github.com/x",1)));assertNull(ReleaseInfo.parse(release("v0.9.1.2","helios-eos-0.9.1.2.apk","https://github.com/x",1)));
+        assertNull("initial download only from github.com or objects.githubusercontent.com",ReleaseInfo.parse(release("v0.9.1","helios-eos-0.9.1.apk","https://raw.githubusercontent.com/x",1)));
+        assertNotNull(ReleaseInfo.parse(release("v0.9.1","helios-eos-0.9.1.apk","https://objects.githubusercontent.com/x",1)));
+        assertNull(ReleaseInfo.parse(release("v0.9.1","helios-eos-0.9.2.apk","https://github.com/x",1)));
+        assertNull(ReleaseInfo.parse(release("v0.9.1","helios-eos-0.9.1.apk","http://github.com/x",1)));
+        assertNull(ReleaseInfo.parse(release("v0.9.1","helios-eos-0.9.1.apk","https://evil.com/x",1)));
+        assertNull(ReleaseInfo.parse(release("v0.9.1","helios-eos-0.9.1.apk","https://github.com/x",ReleaseInfo.MAX_BYTES+1)));
+        assertNull(ReleaseInfo.parse(release("v0.9.1","helios-eos-0.9.1.apk","https://github.com/x",1).put("prerelease",true)));
+        assertNull(ReleaseInfo.parse(release("v0.9.1","helios-eos-0.9.1.apk","https://github.com/x",1).put("draft",true)));
+        JSONObject two=release("v0.9.1","helios-eos-0.9.1.apk","https://github.com/x",1);two.getJSONArray("assets").put(new JSONObject().put("name","helios-eos-0.9.1.apk").put("browser_download_url","https://github.com/y").put("size",1));
         assertNull(ReleaseInfo.parse(two));
         assertNull(ReleaseInfo.parse(null));
         assertTrue(ReleaseInfo.allowedHost("https://objects.githubusercontent.com/a"));assertFalse(ReleaseInfo.allowedHost("https://githubusercontent.com.evil.com/a"));assertFalse(ReleaseInfo.allowedHost("https://github.com.evil.com/a"));

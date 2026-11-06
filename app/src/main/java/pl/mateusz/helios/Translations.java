@@ -34,6 +34,15 @@ final class Translations {
         return "en".equals(language)||"de".equals(language)?language:"pl";
     }
 
+    /** Maps a Home Assistant language code (e.g. "de", "pt-BR") onto a supported choice; unknown codes fall back to English (the app's default). */
+    static String fromHaLanguage(String code) {
+        if(code==null||code.isEmpty())return null;
+        String language=code.toLowerCase(Locale.ROOT).replace('_','-');
+        if(language.startsWith("pl"))return "pl";
+        if(language.startsWith("de"))return "de";
+        return "en";
+    }
+
     static Locale locale(String choice,Locale system) {
         switch(effective(choice,system)) {
             case "en":return Locale.UK;

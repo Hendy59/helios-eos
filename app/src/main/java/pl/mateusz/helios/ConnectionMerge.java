@@ -11,6 +11,7 @@ final class ConnectionMerge {
             JSONObject merged=new JSONObject(current.toString());
             String pipeline=event.optString("pipeline","");if(!pipeline.isEmpty())merged.put("pipeline",pipeline);
             String path=event.optString("dashboard_path","");if(!path.isEmpty())merged.put("dashboard_path",path);
+            String language=event.optString("language","");if(!language.isEmpty())merged.put("language",language);
             if(event.has("diagnostics_url")){String d=event.isNull("diagnostics_url")?"":event.optString("diagnostics_url","");if(d.isEmpty())merged.remove("diagnostics_url");else merged.put("diagnostics_url",d);}
             if(event.has("music_assistant")){
                 if(event.isNull("music_assistant"))merged.remove("music_assistant");

@@ -69,6 +69,15 @@ final class Updater {
     /** Menu entry; network thread. Updates Helios itself. */
     void run(){run(ReleaseInfo.HELIOS,versionName);}
 
+    /** Silent availability check: the newer release's version, or null when offline, no release, or up to date. No status side effects. */
+    String checkAvailable(ReleaseInfo.Source source,String installedVersion){
+        JSONObject release;
+        try{release=host.release(source);}catch(IOException e){return null;}
+        ReleaseInfo info=ReleaseInfo.parse(release,source);
+        if(info==null)return null;
+        return "newer".equals(decision(info.version,installedVersion))?info.version:null;
+    }
+
     /**
      * Fetches and installs one release of the given source (SPEC 0.12 pkt 6.2). Helios updates itself with its own
      * version; another package is compared against whatever is installed, and "absent" means a first install.

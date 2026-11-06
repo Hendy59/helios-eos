@@ -90,6 +90,8 @@ public final class MainActivity extends Activity implements AssistClient.Listene
             service.setOnAuthInvalid(()->dashboard.setMessage(I18n.t("HA odrzucił token - sparuj ponownie")));
             service.setOnChannelIssue(text->dashboard.setMessage(text));
             service.setOnStatus(text->dashboard.setMessage(text));
+            service.setOnLanguageChanged(()->{if(!isDestroyed())recreate();}); // HA reported its language: re-render every label
+            service.setOnUpdateAvailable(()->{String v=service.updateAvailable();if(v!=null)dashboard.setMessage(I18n.t("Nowa wersja: ")+v+I18n.t(" — aktualizuj"));});
             service.setMusicListener(snapshot->{
                 musicActive=snapshot.ui!=MusicSession.Ui.NONE; // a paused queue is still listening, so it blocks too
                 dashboard.musicInfo(snapshot.remoteInfo);
@@ -230,7 +232,7 @@ public final class MainActivity extends Activity implements AssistClient.Listene
         ApkProvider.sweep(this,ToolsBridge.pendingOpId(this));
         // and an operation we never saw the answer to is picked up again, without waiting for the menu
         if(ToolsBridge.pendingOpId(this)!=null)main.postDelayed(toolsPoll,3000);
-        navigation=new NavigationMenu(this,()->config,()->service!=null&&service.updater().busy(),new NavigationMenu.Actions(){
+        navigation=new NavigationMenu(this,()->config,()->service!=null&&service.updater().busy(),()->service==null?null:service.updateAvailable(),new NavigationMenu.Actions(){
             public void talk(){manualTalk();}
             public void cancel(){if(voice!=null)voice.cancel();}
             public void pair(){onboarding(false);}

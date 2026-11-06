@@ -25,13 +25,14 @@ final class NavigationMenu {
     private final Activity activity;
     private final java.util.function.Supplier<org.json.JSONObject> connection;
     private final java.util.function.BooleanSupplier updateBusy;
+    private final java.util.function.Supplier<String> updateAvailable;
     private Dialog dialog;
     private String status="";
     interface Actions {void talk();void cancel();void pair();void device();void update();void tools();
         /** Label with the live reading, and a tap that steps the darkness threshold (SPEC 0.13 pkt 3). */
         String screensaverLabel();void screensaverStep();}
     private final Actions actions;
-    NavigationMenu(Activity activity,java.util.function.Supplier<org.json.JSONObject> connection,java.util.function.BooleanSupplier updateBusy,Actions actions){this.activity=activity;this.connection=connection;this.updateBusy=updateBusy;this.actions=actions;}
+    NavigationMenu(Activity activity,java.util.function.Supplier<org.json.JSONObject> connection,java.util.function.BooleanSupplier updateBusy,java.util.function.Supplier<String> updateAvailable,Actions actions){this.activity=activity;this.connection=connection;this.updateBusy=updateBusy;this.updateAvailable=updateAvailable;this.actions=actions;}
     private int dp(int n){return Math.round(n*activity.getResources().getDisplayMetrics().density);}
     /** The night clock must not cover an open menu (SPEC 0.13 pkt 4). */
     boolean isShowing(){return dialog!=null&&dialog.isShowing();}
@@ -66,7 +67,9 @@ final class NavigationMenu {
         button(rows,I18n.t("Dostępność"),()->open(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)));
         button(rows,I18n.t("Ekran główny"),()->open(new Intent(Settings.ACTION_HOME_SETTINGS)));
         button(rows,I18n.t("Aplikacje"),this::apps);
-        Button update=button(rows,I18n.t("Aktualizacja Heliosa"),()->{close();actions.update();});
+        String available=updateAvailable.get();
+        // when a newer release exists, the entry says so and offers the in-UI update (the installer's own confirm surface follows)
+        Button update=button(rows,available==null?I18n.t("Aktualizacja Heliosa"):I18n.t("Nowa wersja: ")+available+I18n.t(" — aktualizuj"),()->{close();actions.update();});
         update.setEnabled(!updateBusy.getAsBoolean()); // the menu is rebuilt on every open and busy() is computed on demand, so this is always current
         dialog.setContentView(panel);
         Window window=dialog.getWindow();
