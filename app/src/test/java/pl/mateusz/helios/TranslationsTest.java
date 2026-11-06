@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class TranslationsTest {
     private static Translations sample() {
@@ -34,6 +35,17 @@ public class TranslationsTest {
         Translations catalogue=Translations.fromJson("{\"Głos\\nHA\":\"Voice\\nHA\"}",
                 "{\"Głos\\nHA\":\"Stimme\\nHA\"}");
         assertEquals("Stimme\nHA",catalogue.text("de",Locale.US,"Głos\nHA"));
+    }
+
+    @Test public void haLanguageCodesMapToSupportedChoices() {
+        assertEquals("de",Translations.fromHaLanguage("de"));
+        assertEquals("de",Translations.fromHaLanguage("de-AT"));
+        assertEquals("pl",Translations.fromHaLanguage("pl"));
+        assertEquals("en",Translations.fromHaLanguage("en"));
+        assertEquals("en",Translations.fromHaLanguage("en-US"));
+        assertEquals("en",Translations.fromHaLanguage("pt-BR")); // unsupported: English is the app default
+        assertNull(Translations.fromHaLanguage(null));
+        assertNull(Translations.fromHaLanguage(""));
     }
 
     @Test public void cyclesThroughAutomaticAndThreeLanguages() {

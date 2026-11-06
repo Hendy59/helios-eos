@@ -58,40 +58,40 @@ public class UpdaterTest {
         public void status(String text){log.add("status:"+text);}
         public void launch(android.content.Intent intent){log.add("launch");}
     }
-    private static final String DL="download:https://github.com/SychPL/helios/releases/download/v0.9.1/helios-0.9.1.apk";
-    private static JSONObject newer() throws Exception {return new JSONObject().put("tag_name","v0.9.1").put("draft",false).put("prerelease",false).put("assets",new JSONArray().put(new JSONObject().put("name","helios-0.9.1.apk").put("browser_download_url","https://github.com/SychPL/helios/releases/download/v0.9.1/helios-0.9.1.apk").put("size",6_000_000)));}
+    private static final String DL="download:https://github.com/Hendy59/helios-eos/releases/download/v0.9.1/helios-eos-0.9.1.apk";
+    private static JSONObject newer() throws Exception {return new JSONObject().put("tag_name","v0.9.1").put("draft",false).put("prerelease",false).put("assets",new JSONArray().put(new JSONObject().put("name","helios-eos-0.9.1.apk").put("browser_download_url","https://github.com/Hendy59/helios-eos/releases/download/v0.9.1/helios-eos-0.9.1.apk").put("size",6_000_000)));}
     @Test public void runCoversPermissionReleaseVersionAndFailures() throws Exception {
         Host h=new Host();Updater u=new Updater(h,"0.9.0",28);
         h.canInstall=false;u.run();assertEquals(Arrays.asList("settings","status:Zezwól Heliosowi na instalację, potem powtórz"),h.log);assertNull("no record without permission",h.record);h.log.clear();h.canInstall=true;
         u.run();assertEquals(Arrays.asList("status:Brak połączenia z GitHub"),h.log);h.log.clear();
-        h.release=new JSONObject().put("tag_name","v0.9.0").put("draft",false).put("prerelease",false).put("assets",new JSONArray().put(new JSONObject().put("name","helios-0.9.0.apk").put("browser_download_url","https://github.com/x").put("size",1)));
+        h.release=new JSONObject().put("tag_name","v0.9.0").put("draft",false).put("prerelease",false).put("assets",new JSONArray().put(new JSONObject().put("name","helios-eos-0.9.0.apk").put("browser_download_url","https://github.com/x").put("size",1)));
         u.run();assertEquals(Arrays.asList("status:Masz najnowszą wersję (0.9.0)"),h.log);h.log.clear();
         h.release=newer();h.check="Nieprawidłowy plik wydania";
-        u.run();assertEquals(Arrays.asList("save","status:Pobieram Helios 0.9.1…",DL,"status:Nieprawidłowy plik wydania","delete","clear"),h.log);assertNull(h.record);assertFalse(u.busy());h.log.clear();
+        u.run();assertEquals(Arrays.asList("save","status:Pobieram EOS 0.9.1…",DL,"status:Nieprawidłowy plik wydania","delete","clear"),h.log);assertNull(h.record);assertFalse(u.busy());h.log.clear();
         h.check="ok";h.writeOk=false;
-        u.run();assertEquals(Arrays.asList("save","status:Pobieram Helios 0.9.1…",DL,"create","save","write:41","status:Instalacja nieudana","abandon:41","delete","clear"),h.log);assertFalse(u.busy());h.log.clear();
+        u.run();assertEquals(Arrays.asList("save","status:Pobieram EOS 0.9.1…",DL,"create","save","write:41","status:Instalacja nieudana","abandon:41","delete","clear"),h.log);assertFalse(u.busy());h.log.clear();
         h.writeOk=true;h.saveOk=false;
         u.run();assertEquals("the first record save fails: nothing else happens",Arrays.asList("save","status:Nie udało się zapisać stanu aktualizacji"),h.log);assertFalse(u.busy());h.log.clear();h.saveOk=true;
     }
     @Test public void everyLaterFailureAbandonsAndCleansUp() throws Exception {
         Host h=new Host();Updater u=new Updater(h,"0.9.0",28);h.release=newer();
         h.downloadOk=false;
-        u.run();assertEquals(Arrays.asList("save","status:Pobieram Helios 0.9.1…",DL,"status:Brak połączenia z GitHub","delete","clear"),h.log);assertFalse(u.busy());h.log.clear();h.downloadOk=true;
+        u.run();assertEquals(Arrays.asList("save","status:Pobieram EOS 0.9.1…",DL,"status:Brak połączenia z GitHub","delete","clear"),h.log);assertFalse(u.busy());h.log.clear();h.downloadOk=true;
         h.createOk=false;
-        u.run();assertEquals(Arrays.asList("save","status:Pobieram Helios 0.9.1…",DL,"create","status:Instalacja nieudana","delete","clear"),h.log);assertFalse(u.busy());h.log.clear();h.createOk=true;
+        u.run();assertEquals(Arrays.asList("save","status:Pobieram EOS 0.9.1…",DL,"create","status:Instalacja nieudana","delete","clear"),h.log);assertFalse(u.busy());h.log.clear();h.createOk=true;
         h.saves=0;h.saveFailAt=2; // the second save (session id) fails
-        u.run();assertEquals(Arrays.asList("save","status:Pobieram Helios 0.9.1…",DL,"create","save","status:Nie udało się zapisać stanu aktualizacji","abandon:41","delete","clear"),h.log);assertFalse(u.busy());h.log.clear();h.saveFailAt=-1;
+        u.run();assertEquals(Arrays.asList("save","status:Pobieram EOS 0.9.1…",DL,"create","save","status:Nie udało się zapisać stanu aktualizacji","abandon:41","delete","clear"),h.log);assertFalse(u.busy());h.log.clear();h.saveFailAt=-1;
         h.commitOk=false;
         u.run();String commit=h.log.stream().filter(e->e.startsWith("commit:41:")).findFirst().orElse("none"); // the record is gone after the cleanup, the id lives only in the log
-        assertEquals(Arrays.asList("save","status:Pobieram Helios 0.9.1…",DL,"create","save","write:41",commit,"status:Instalacja nieudana","abandon:41","delete","clear"),h.log);assertFalse(u.busy());h.log.clear();h.commitOk=true;
+        assertEquals(Arrays.asList("save","status:Pobieram EOS 0.9.1…",DL,"create","save","write:41",commit,"status:Instalacja nieudana","abandon:41","delete","clear"),h.log);assertFalse(u.busy());h.log.clear();h.commitOk=true;
         h.clearOk=false;h.writeOk=false;
-        u.run();assertEquals("a failed clear is reported, not hidden",Arrays.asList("save","status:Pobieram Helios 0.9.1…",DL,"create","save","write:41","status:Instalacja nieudana","abandon:41","delete","clear","status:Nie udało się wyczyścić stanu aktualizacji"),h.log);
+        u.run();assertEquals("a failed clear is reported, not hidden",Arrays.asList("save","status:Pobieram EOS 0.9.1…",DL,"create","save","write:41","status:Instalacja nieudana","abandon:41","delete","clear","status:Nie udało się wyczyścić stanu aktualizacji"),h.log);
         h.sealed=null;assertFalse("an unsealed leftover record is not busy",u.busy());
     }
     @Test public void successfulCommitLeavesADurableOperationAndTheReceiverClearsIt() throws Exception {
         Host h=new Host();Updater u=new Updater(h,"0.9.0",28);h.release=newer();
         u.run();
-        assertEquals(Arrays.asList("save","status:Pobieram Helios 0.9.1…",DL,"create","save","write:41","commit:41:"+h.record.getString("id")),h.log);
+        assertEquals(Arrays.asList("save","status:Pobieram EOS 0.9.1…",DL,"create","save","write:41","commit:41:"+h.record.getString("id")),h.log);
         assertEquals(41,h.record.getInt("session"));h.sealed=Boolean.TRUE;assertTrue("busy from the durable record + sealed session",u.busy());h.log.clear();
         String op=h.record.getString("id");
         u.onStatus("other-op",android.content.pm.PackageInstaller.STATUS_PENDING_USER_ACTION,null,"/tmp/x.apk",null);assertEquals("a foreign pending status is ignored",Arrays.asList("delete"),h.log);h.log.clear();
@@ -100,6 +100,15 @@ public class UpdaterTest {
         u.run();h.log.clear();h.sealed=Boolean.TRUE;String op2=h.record.getString("id");
         u.onStatus(op,android.content.pm.PackageInstaller.STATUS_FAILURE_ABORTED,null,"/tmp/x.apk","aborted");assertEquals("a stale operation id never clears the current record",Arrays.asList("delete"),h.log);assertNotNull(h.record);h.log.clear();
         u.onStatus(op2,android.content.pm.PackageInstaller.STATUS_FAILURE_ABORTED,null,"/tmp/y.apk","INSTALL_FAILED_UPDATE_INCOMPATIBLE");assertEquals("a final non-success status reports the installer's reason and clears",Arrays.asList("status:Instalacja odrzucona: INSTALL_FAILED_UPDATE_INCOMPATIBLE","delete","clear"),h.log);assertNull(h.record);assertFalse(u.busy());
+    }
+    @Test public void checkAvailableReportsOnlyNewerReleasesSilently() throws Exception {
+        Host h=new Host();Updater u=new Updater(h,"0.9.0",28);
+        h.release=null;assertNull("offline: no version, no complaint",u.checkAvailable(ReleaseInfo.HELIOS,"0.9.0"));
+        h.release=newer();assertEquals("0.9.1",u.checkAvailable(ReleaseInfo.HELIOS,"0.9.0"));
+        assertNull("up to date",u.checkAvailable(ReleaseInfo.HELIOS,"0.9.1"));
+        h.release=new JSONObject().put("tag_name","v0.9.1").put("draft",true).put("assets",new JSONArray());
+        assertNull("drafts are not releases",u.checkAvailable(ReleaseInfo.HELIOS,"0.9.0"));
+        assertTrue("a silent check never reports status",h.log.isEmpty());
     }
     @Test public void restoreAfterProcessDeath() throws Exception {
         Host h=new Host();h.record=new JSONObject().put("id","a").put("session",-1).put("file","/tmp/a.apk").put("started",0);

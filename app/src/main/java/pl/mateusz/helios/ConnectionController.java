@@ -7,7 +7,7 @@ import org.json.JSONObject;
 final class ConnectionController {
     interface Store {JSONObject current();boolean save(JSONObject connection);boolean clear();}
     interface Probe {String music(String url,String token);}
-    interface Transports {void restartAll();void restartHa();void restartMusic();void stopAll();void issue(String text);}
+    interface Transports {void restartAll();void restartHa();void restartMusic();void stopAll();void issue(String text);void applyLanguage(String code);}
     static final String IGNORED="ignored",SAVED="saved",SAVE_FAILED="save_failed";
     private final Store store;private final Probe probe;private final Transports transports;
     private int generation; // bumps only when the identity changes (pairing, auth_invalid): the HA session of the current identity keeps its number across connection events
@@ -60,8 +60,10 @@ final class ConnectionController {
         }
         if(merged.toString().equals(current.toString()))return;
         boolean restartHa=ConnectionMerge.haRestart(current,merged),restartMa=ConnectionMerge.maRestart(current,merged);
+        String languageBefore=current.optString("language",""),languageAfter=merged.optString("language","");
         if(!save(merged,gen,false))return; // the probe took time: a pairing in between wins; the session keeps its generation
         if(restartHa)transports.restartHa();
         if(restartMa)transports.restartMusic();
+        if(!languageAfter.isEmpty()&&!languageAfter.equals(languageBefore))transports.applyLanguage(languageAfter);
     }
 }

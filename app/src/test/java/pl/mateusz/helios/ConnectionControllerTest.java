@@ -12,7 +12,7 @@ public class ConnectionControllerTest {
         stored=current;
         return new ConnectionController(new ConnectionController.Store(){public JSONObject current(){return stored;}public boolean save(JSONObject c){log.add("save");if(saveOk)stored=c;return saveOk;}public boolean clear(){log.add("clear");if(clearOk)stored=null;return clearOk;}},
             (url,token)->{log.add("probe:"+url);return probeError;},
-            new ConnectionController.Transports(){public void restartAll(){log.add("all");}public void restartHa(){log.add("ha");}public void restartMusic(){log.add("music");}public void stopAll(){log.add("stop");}public void issue(String t){log.add("issue:"+t);}});
+            new ConnectionController.Transports(){public void restartAll(){log.add("all");}public void restartHa(){log.add("ha");}public void restartMusic(){log.add("music");}public void stopAll(){log.add("stop");}public void issue(String t){log.add("issue:"+t);}public void applyLanguage(String code){log.add("lang:"+code);}});
     }
     private static JSONObject response() throws Exception {return new JSONObject().put("protocol",2).put("token","new").put("pipeline","p1").put("dashboard_path","helios-clock");}
     @Test public void pairingPersistsBeforeRestartAndFailsTerminally() throws Exception {
@@ -54,6 +54,19 @@ public class ConnectionControllerTest {
         c.applyConnection(new JSONObject().put("pipeline","p3"),live);log.clear();
         assertEquals("after a connection event the same session may still report auth_invalid",ConnectionController.SAVED,c.markAuthInvalid(live));
         assertEquals(Arrays.asList("save","stop"),log);assertTrue(stored.getBoolean("auth_invalid"));assertEquals(live+1,c.generation());
+    }
+    @Test public void connectionEventAppliesTheHaLanguageWhenItChanges() throws Exception {
+        JSONObject base=new JSONObject().put("url","http://ha:8123").put("token","t").put("pipeline","p1").put("protocol",2);
+        ConnectionController c=controller(base);
+        int g=c.generation();
+        c.applyConnection(new JSONObject().put("pipeline","p1").put("language","de"),g);
+        assertEquals(Arrays.asList("save","lang:de"),log);assertEquals("de",stored.getString("language"));log.clear();
+        c.applyConnection(new JSONObject().put("pipeline","p1").put("language","de"),g);
+        assertTrue("an unchanged language is merged away: nothing happens",log.isEmpty());
+        c.applyConnection(new JSONObject().put("pipeline","p1").put("language","pl"),g);
+        assertEquals(Arrays.asList("save","lang:pl"),log);log.clear();
+        c.applyConnection(new JSONObject().put("pipeline","p1"),g);
+        assertTrue("an absent language key leaves the stored one alone",log.isEmpty());assertEquals("pl",stored.getString("language"));
     }
     @Test public void authInvalidIsPersistedOrReportedAsUnsaved() throws Exception {
         JSONObject base=new JSONObject().put("url","http://ha:8123").put("token","t").put("pipeline","p1").put("protocol",2);
